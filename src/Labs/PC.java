@@ -18,6 +18,7 @@ public class PC
 
     public double countProbability()
     {
-        return (double)tProst / (double)tOkObr;
+        double result = (double)tProst / (double)tOkObr;
+        return result;
     }
 }

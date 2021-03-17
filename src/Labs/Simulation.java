@@ -4,26 +4,22 @@ import java.util.Random;
 
 public class Simulation
 {
-    final int N = 100;
-    final int NTASKS = 1000;
-
     Properties properties;
+    final int N;
+    final int NTASKS;
 
     Simulation()
     {
         properties = new Properties();
+        N = properties.N;
+        NTASKS = properties.NTASKS;
     }
 
     public void Start()
     {
         int tInSys = 0;
-        float tOgAll = 0;
 
-        double probPC1 = 0;
-        double probPC2 = 0;
-        double probPC3 = 0;
-
-        // Создаём компьбтеры.
+        // Создаём компьютеры.
         PC PC1 = new PC();
         PC PC2 = new PC();
         PC PC3 = new PC();
@@ -74,35 +70,21 @@ public class Simulation
 
                 // Для первого ПК.
                 if (randPC == 1)
-                {
-                    tInSys += algoryrhm(PC1,n);
-                }
+                    tInSys += algorithm(PC1);
 
                 // Для второго ПК.
                 else if (randPC == 2)
-                {
-                    tInSys += algoryrhm(PC2, n);
-                }
+                    tInSys += algorithm(PC2);
 
                 // Для третьего ПК.
                 else if (randPC == 3)
-                {
-                    tInSys += algoryrhm(PC3, n);
-                }
+                    tInSys += algorithm(PC3);
             }
-
-            // Просчитываем время ожидания
-            for(int j = 0; j < NTASKS; j++)
-            {
-                properties.tOgSum += properties.tOG[j];
-            }
-
-            tOgAll += properties.tOgSum;
 
             // Просчитываем вероятности
-            PC1.probPC += PC1.countProbability();
-            PC2.probPC += PC2.countProbability();
-            PC3.probPC += PC3.countProbability();
+            PC1.probPC += (double)PC1.tProst / PC1.tOkObr;
+            PC2.probPC += (double)PC2.tProst / PC2.tOkObr;
+            PC3.probPC += (double)PC3.tProst / PC3.tOkObr;
 
             // Обнуляем значения countOfTasks для каждого ПК
             PC1.countOFTasks = 0;
@@ -110,29 +92,25 @@ public class Simulation
             PC3.countOFTasks = 0;
         }
 
-        System.out.println("Среднее время ожидания: " + tOgAll / (N * NTASKS));
-        System.out.println("Вероятность простоя 1 ПК: " + PC1.probPC / N + "%");
-        System.out.println("Вероятность простоя 2 ПК: " + PC2.probPC / N + "%");
-        System.out.println("Вероятность простоя 3 ПК: " + PC3.probPC / N + "%");
+        System.out.println("Среднее время ожидания: " + properties.tWait / (N * NTASKS));
+        System.out.println("Вероятность простоя 1 ПК: " + PC1.probPC / N + " %");
+        System.out.println("Вероятность простоя 2 ПК: " + PC2.probPC / N + " %");
+        System.out.println("Вероятность простоя 3 ПК: " + PC3.probPC / N + " %");
         System.out.println("Среднее время в системе: " + tInSys / (N * NTASKS));
     }
 
-    public int algoryrhm(PC numPC, int n)
+    public int algorithm(PC numPC)
     {
         if(properties.tPrih < numPC.tOkObr)
         {
-            if (n == 0)
-                properties.tOG[n] = numPC.tOkObr - properties.tPrih;
-            else
-                properties.tOG[n] = properties.tOG[n - 1] + numPC.tOkObr - properties.tPrih;
-
+            properties.tWait += numPC.tOkObr - properties.tPrih;
             numPC.tOkObr += properties.tIntOb;
         }
         else
         {
-            numPC.tProst += properties.tPrih + numPC.tOkObr;
+            numPC.tProst += properties.tPrih - numPC.tOkObr;
             numPC.tOkObr = properties.tPrih + properties.tIntOb;
         }
-        return numPC.tOkObr - properties.tPrih;
+        return (numPC.tOkObr - properties.tPrih);
     }
 }

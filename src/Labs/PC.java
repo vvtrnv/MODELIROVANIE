@@ -12,7 +12,6 @@ public class PC
     public void clearPC()
     {
         tOkObr = 0;
-        tProst = 0;
         countOFTasks = 0;
     }
 
